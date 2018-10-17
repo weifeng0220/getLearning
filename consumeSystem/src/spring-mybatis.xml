@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 自动搜索bean -->
+    <context:component-scan base-package="com.wanshi" />
+
+    <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/consumedb?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+    </bean>
+
+    <!-- mybatis核心bean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="datasource"/>
+        <!-- 所有配置的mapper文件       -->
+     	<property name="mapperLocations" value="classpath*:com/wanshi/**/mapper/*.xml" />
+    </bean>
+
+    <!-- 自动搜索mapper接口 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.wanshi.*.mapper" />
+    </bean>
+
+
+    <!-- 事务处理 -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="insert*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="select*" propagation="SUPPORTS"/>
+        </tx:attributes>
+    </tx:advice>
+	<!-- 
+        	aop:pointcut:标签配置参与事务的类: 只对业务逻辑层实施事务，由于是在Service中进行数据库业务操作，配的应该是包含那些作为事务的方法的Service类
+        	详细说明：
+        	首先应该特别注意的是id的命名，同样由于每个模块都有自己事务切面，
+        	所以我觉得初步的命名规则因为 all+模块名+ServiceMethod。
+        	而且每个模块之间不同之处还在于以下一句： 
+        	expression="execution(* com.brainsoon..service..*.*(..))"
+       		其中第一个*代表通配：任意返回值类型，
+       		第二*代表通配:service下子包任意class，
+       		第三个*代表通配:包下任意class的任意方法，
+       		“（..）”代表通配:方法可以有0个或多个参数
+         -->
+    <aop:config>
+        <aop:pointcut id="serviceCut" expression="execution(* com.wanshi.ssmdemo.service.*.*(..))" />
+        <aop:advisor pointcut-ref="serviceCut" advice-ref="txAdvice" />
+    </aop:config>
+
+
+</beans>

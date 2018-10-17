@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wanshi.ssmdemo.mapper.ConsumeinfoMapper" >
+  <resultMap id="BaseResultMap" type="com.wanshi.ssmdemo.entity.Consumeinfo" >
+    <id column="consumeId" property="consumeid" jdbcType="INTEGER" />
+    <result column="consumeName" property="consumename" jdbcType="VARCHAR" />
+    <result column="consumePrice" property="consumeprice" jdbcType="DECIMAL" />
+    <result column="consumeCount" property="consumecount" jdbcType="INTEGER" />
+    <result column="consumeDate" property="consumedate" jdbcType="TIMESTAMP" />
+    <result column="consumeType" property="consumetype" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    consumeId, consumeName, consumePrice, consumeCount, consumeDate, consumeType, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from consumeinfo
+    where consumeId = #{consumeid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from consumeinfo
+    where consumeId = #{consumeid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.wanshi.ssmdemo.entity.Consumeinfo" >
+    insert into consumeinfo (consumeName, consumePrice, 
+      consumeCount, consumeDate, consumeType, 
+      remark)
+    values (#{consumename,jdbcType=VARCHAR}, #{consumeprice,jdbcType=DECIMAL}, 
+      #{consumecount,jdbcType=INTEGER}, #{consumedate,jdbcType=TIMESTAMP}, #{consumetype,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.wanshi.ssmdemo.entity.Consumeinfo" >
+    insert into consumeinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="consumeid != null" >
+        consumeId,
+      </if>
+      <if test="consumename != null" >
+        consumeName,
+      </if>
+      <if test="consumeprice != null" >
+        consumePrice,
+      </if>
+      <if test="consumecount != null" >
+        consumeCount,
+      </if>
+      <if test="consumedate != null" >
+        consumeDate,
+      </if>
+      <if test="consumetype != null" >
+        consumeType,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="consumeid != null" >
+        #{consumeid,jdbcType=INTEGER},
+      </if>
+      <if test="consumename != null" >
+        #{consumename,jdbcType=VARCHAR},
+      </if>
+      <if test="consumeprice != null" >
+        #{consumeprice,jdbcType=DECIMAL},
+      </if>
+      <if test="consumecount != null" >
+        #{consumecount,jdbcType=INTEGER},
+      </if>
+      <if test="consumedate != null" >
+        #{consumedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="consumetype != null" >
+        #{consumetype,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wanshi.ssmdemo.entity.Consumeinfo" >
+    update consumeinfo
+    <set >
+      <if test="consumename != null" >
+        consumeName = #{consumename,jdbcType=VARCHAR},
+      </if>
+      <if test="consumeprice != null" >
+        consumePrice = #{consumeprice,jdbcType=DECIMAL},
+      </if>
+      <if test="consumecount != null" >
+        consumeCount = #{consumecount,jdbcType=INTEGER},
+      </if>
+      <if test="consumedate != null" >
+        consumeDate = #{consumedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="consumetype != null" >
+        consumeType = #{consumetype,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where consumeId = #{consumeid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wanshi.ssmdemo.entity.Consumeinfo" >
+    update consumeinfo
+    set consumeName = #{consumename,jdbcType=VARCHAR},
+      consumePrice = #{consumeprice,jdbcType=DECIMAL},
+      consumeCount = #{consumecount,jdbcType=INTEGER},
+      consumeDate = #{consumedate,jdbcType=TIMESTAMP},
+      consumeType = #{consumetype,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where consumeId = #{consumeid,jdbcType=INTEGER}
+  </update>
+  <select id="getConsumeinfos" resultType="java.util.Map" parameterType="java.util.Map">
+  	select * from consumeinfo cf left join categoryinfo cg on cf.`consumeType` = cg.`categoryId`
+  	<where>
+  		<if test="consumename!=null&amp;&amp;consumename!=''">
+  			and consumeName like "%"#{consumename}"%"
+  		</if>
+  		<if test="beginPrice!=null&amp;&amp;beginPrice!=''">
+  			and consumePrice &gt; #{beginPrice}
+  		</if>
+  		<if test="endPrice!=null&amp;&amp;endPrice!=''">
+  			and consumePrice &lt; #{endPrice}
+  		</if>
+  	</where>
+  	order by cf.consumeDate desc
+  </select>
+</mapper>
